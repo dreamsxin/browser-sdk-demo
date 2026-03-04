@@ -9,8 +9,8 @@ import (
 // Browser
 type Browser struct {
 	Id        int            `json:"id" gorm:"type:int unsigned;primaryKey;autoIncrement;comment:主键"` //主键
-	Name      string         `json:"name" gorm:"type:varchar(255);comment:名称"`                        //名称
-	EnvId     uint64         `json:"envId" gorm:"type:bigint;comment:环境ID"`                           //环境ID
+	EnvName   string         `json:"envName" gorm:"type:varchar(255);comment:名称"`                     //名称
+	EnvId     string         `json:"envId" gorm:"type:varchar(255);comment:环境ID"`                     //环境ID
 	UserId    int            `json:"userId" gorm:"type:int ;comment:用户ID"`                            //用户ID
 	Data      string         `json:"data" gorm:"type:text;comment:数据"`                                //数据
 	CreatedAt time.Time      `json:"createdAt" gorm:"type:datetime(3);comment:创建时间"`                  //创建时间

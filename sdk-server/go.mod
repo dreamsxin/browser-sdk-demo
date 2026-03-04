@@ -13,7 +13,7 @@ require (
 	github.com/baowk/dilu-core v1.0.27
 	github.com/baowk/dilu-plugin v1.0.0
 	github.com/baowk/dilu-rd v1.0.0
-	github.com/browsersdk/brosdk-server-go v0.0.0-20260225014337-28d5961a6d55
+	github.com/browsersdk/brosdk-server-go v0.0.0-20260304055149-57d4accf76f7
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-gonic/gin v1.11.0

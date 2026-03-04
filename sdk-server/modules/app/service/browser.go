@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"dilu/common/config"
-	"dilu/common/utils"
 	"dilu/modules/sys/models"
 	"dilu/modules/sys/service"
 	"encoding/json"
@@ -60,29 +59,25 @@ func (s *BrowserService) GetUserSig(uid int, data *brosdk.UserSigData) error {
 }
 
 func (s *BrowserService) Create(uid int, req *brosdk.EnvInfo) error {
+	if req.EnvName == "" {
+		req.EnvName = fmt.Sprintf("用户%d的浏览器环境", uid)
+	}
+
 	var data models.Browser
 	copier.Copy(&data, req)
 
 	data.UserId = uid
-	data.EnvId = utils.GenUint()
 	data.Status = 1
 
-	if req.EnvName == "" {
-		req.EnvName = fmt.Sprintf("用户%d的浏览器环境", uid)
+	data.EnvName = req.EnvName
+	if req.Finger.KernelVersion == "" {
+		req.Finger.KernelVersion = "134"
 	}
-	data.Name = req.EnvName
-	if req.KernelVersion == "" {
-		req.KernelVersion = "134"
+	if req.Finger.Kernel == "" {
+		req.Finger.Kernel = "Chrome"
 	}
-	if req.Kernel == "" {
-		req.Kernel = "Chrome"
-	}
-	if req.System == "" {
-		req.System = "Windows 11"
-	}
-
-	if req.PublicIp == "" {
-		req.PublicIp = "123.123.123.123"
+	if req.Finger.System == "" {
+		req.Finger.System = "Windows 11"
 	}
 
 	if err := service.SerBrowser.Create(&data); err != nil {
@@ -105,6 +100,7 @@ func (s *BrowserService) Create(uid int, req *brosdk.EnvInfo) error {
 	if err != nil {
 		return err
 	}
+	data.EnvId = resp.EnvId
 	data.Data = string(edata)
 	data.Status = 3
 	if err := service.SerBrowser.UpdateById(&data); err != nil {
@@ -118,6 +114,9 @@ func (s *BrowserService) Update(uid int, req *brosdk.EnvInfo) error {
 	var browser models.Browser
 	if err := service.SerBrowser.Get(req.EnvId, &browser); err != nil {
 		return err
+	}
+	if req.EnvName != "" {
+		browser.EnvName = req.EnvName
 	}
 
 	if browser.UserId != uid {

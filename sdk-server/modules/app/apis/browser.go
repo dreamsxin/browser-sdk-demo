@@ -41,6 +41,7 @@ func (e *BrowserApi) QueryPage(c *gin.Context) {
 		e.Error(c, err)
 		return
 	}
+	req.SortOrder = "desc"
 	list := make([]models.Browser, 10)
 	var total int64
 
