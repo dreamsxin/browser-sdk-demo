@@ -112,7 +112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/brosdk.EnvInfo"
+                            "$ref": "#/definitions/dto.BrowserDto"
                         }
                     }
                 ],
@@ -10945,7 +10945,7 @@ const docTemplate = `{
                     "description": "数据",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/datatypes.JSONType-brosdk_EnvInfo"
+                            "$ref": "#/definitions/brosdk.EnvInfo"
                         }
                     ]
                 },
@@ -13247,7 +13247,11 @@ const docTemplate = `{
                 },
                 "data": {
                     "description": "数据",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/datatypes.JSONType-brosdk_EnvInfo"
+                        }
+                    ]
                 },
                 "envId": {
                     "description": "环境ID",

@@ -6,13 +6,13 @@ import (
 	"dilu/modules/sys/models"
 	"dilu/modules/sys/service"
 	"dilu/modules/sys/service/dto"
-	"encoding/json"
 	"fmt"
 
 	"github.com/baowk/dilu-core/common/consts"
 	"github.com/baowk/dilu-core/core/base"
 	brosdk "github.com/browsersdk/brosdk-server-go"
 	"github.com/jinzhu/copier"
+	"gorm.io/datatypes"
 )
 
 type BrowserService struct {
@@ -48,6 +48,7 @@ func (s *BrowserService) GetUserSig(uid int, data *brosdk.UserSigData) error {
 	}
 	req := brosdk.GetUserSigRequest{
 		CustomerId: fmt.Sprintf("%d", uid),
+		Duration:   86400,
 	}
 
 	resp, err := sdk.GetUserSig(context.Background(), &req)
@@ -59,7 +60,7 @@ func (s *BrowserService) GetUserSig(uid int, data *brosdk.UserSigData) error {
 	return nil
 }
 
-func (s *BrowserService) Create(uid int, req *brosdk.EnvInfo) (data *models.Browser, err error) {
+func (s *BrowserService) Create(uid int, req *dto.BrowserDto) (data *models.Browser, err error) {
 	if req.EnvName == "" {
 		req.EnvName = fmt.Sprintf("用户%d的浏览器环境", uid)
 	}
@@ -71,15 +72,6 @@ func (s *BrowserService) Create(uid int, req *brosdk.EnvInfo) (data *models.Brow
 	data.Status = 1
 
 	data.EnvName = req.EnvName
-	if req.Finger.KernelVersion == "" {
-		req.Finger.KernelVersion = "134"
-	}
-	if req.Finger.Kernel == "" {
-		req.Finger.Kernel = "Chrome"
-	}
-	if req.Finger.System == "" {
-		req.Finger.System = "Windows 11"
-	}
 
 	if err = service.SerBrowser.Create(&data); err != nil {
 		return
@@ -90,19 +82,16 @@ func (s *BrowserService) Create(uid int, req *brosdk.EnvInfo) (data *models.Brow
 		return
 	}
 
-	req.CustomerId = fmt.Sprintf("%d", uid)
+	req.Data.EnvName = req.EnvName
+	req.Data.CustomerId = fmt.Sprintf("%d", uid)
 
-	resp, err := sdk.EnvCreate(context.Background(), req)
+	resp, err := sdk.EnvCreate(context.Background(), req.Data)
 	if err != nil {
 		return
 	}
 
-	edata, err := json.Marshal(resp)
-	if err != nil {
-		return
-	}
 	data.EnvId = resp.EnvId
-	data.Data = string(edata)
+	data.Data = datatypes.NewJSONType(resp)
 	data.Status = 3
 	if err = service.SerBrowser.UpdateById(&data); err != nil {
 		return
@@ -124,24 +113,19 @@ func (s *BrowserService) Update(uid int, req *dto.BrowserDto) error {
 		return fmt.Errorf("无权限")
 	}
 
-	var curEnv brosdk.EnvInfo
-	if err := json.Unmarshal([]byte(browser.Data), &curEnv); err != nil {
-		return err
-	}
 	sdk, err := s.getBroSdk()
 	if err != nil {
 		return err
 	}
-	data := req.Data.Data()
-	env, err := sdk.EnvUpdate(context.Background(), &data)
-	if err != nil {
-		return err
+	data := req.Data
+	if data != nil {
+		req.Data.EnvName = browser.EnvName
+		env, err := sdk.EnvUpdate(context.Background(), data)
+		if err != nil {
+			return err
+		}
+		browser.Data = datatypes.NewJSONType(env)
 	}
-	edata, err := json.Marshal(env)
-	if err != nil {
-		return err
-	}
-	browser.Data = string(edata)
 	if err := service.SerBrowser.UpdateById(&browser); err != nil {
 		return err
 	}

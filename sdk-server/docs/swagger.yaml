@@ -449,7 +449,7 @@ definitions:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/datatypes.JSONType-brosdk_EnvInfo'
+        - $ref: '#/definitions/brosdk.EnvInfo'
         description: 数据
       envId:
         description: 环境ID
@@ -2106,8 +2106,9 @@ definitions:
         description: 创建时间
         type: string
       data:
+        allOf:
+        - $ref: '#/definitions/datatypes.JSONType-brosdk_EnvInfo'
         description: 数据
-        type: string
       envId:
         description: 环境ID
         type: string
@@ -3105,7 +3106,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/brosdk.EnvInfo'
+          $ref: '#/definitions/dto.BrowserDto'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'

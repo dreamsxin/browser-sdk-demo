@@ -10,7 +10,6 @@ import (
 	appS "dilu/modules/app/service"
 
 	"github.com/baowk/dilu-core/core/base"
-	"github.com/browsersdk/brosdk-server-go"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 )
@@ -87,12 +86,12 @@ func (e *BrowserApi) Get(c *gin.Context) {
 // @Tags app-browser
 // @Accept application/json
 // @Product application/json
-// @Param data body brosdk.EnvInfo true "body"
+// @Param data body dto.BrowserDto true "body"
 // @Success 200 {object} base.Resp{data=string} "{"code": 200, "data": [...]}"
 // @Router /api/app/browser/create [post]
 // @Security Bearer
 func (e *BrowserApi) Create(c *gin.Context) {
-	var req brosdk.EnvInfo
+	var req dto.BrowserDto
 	if err := c.ShouldBind(&req); err != nil {
 		e.Error(c, err)
 		return
