@@ -7,6 +7,9 @@ import (
 	"dilu/modules/app/service"
 	"dilu/modules/sys/models"
 	sService "dilu/modules/sys/service"
+	"fmt"
+	"log/slog"
+	"strconv"
 
 	"github.com/baowk/dilu-core/core/base"
 	"github.com/browsersdk/brosdk-server-go"
@@ -61,9 +64,23 @@ func (e *AppUser) GetSdkUserSig(c *gin.Context) {
 		e.Code(c, codes.InvalidToken_401)
 		return
 	}
-	var user brosdk.UserSigData
 
-	if err := service.SerAppBrowser.GetUserSig(uid, &user); err != nil {
+	var req brosdk.GetUserSigRequest
+	if err := c.ShouldBind(&req); err != nil {
+		e.Error(c, err)
+		return
+	}
+	req.CustomerId = fmt.Sprintf("%d", uid)
+	if req.Duration <= 0 {
+		duration, _ := c.GetQuery("duration")
+		req.Duration, _ = strconv.Atoi(duration)
+	}
+	if req.Duration <= 0 {
+		req.Duration = 86400
+	}
+	var user brosdk.UserSigData
+	if err := service.SerAppBrowser.GetUserSig(&req, &user); err != nil {
+		slog.Error("GetUserSig err", slog.Any("err", err))
 		e.Code(c, codes.ErrBind)
 		return
 	}

@@ -41,17 +41,13 @@ func (s *BrowserService) getBroSdk() (*brosdk.Client, error) {
 	return sdk, err
 }
 
-func (s *BrowserService) GetUserSig(uid int, data *brosdk.UserSigData) error {
+func (s *BrowserService) GetUserSig(req *brosdk.GetUserSigRequest, data *brosdk.UserSigData) error {
 	sdk, err := s.getBroSdk()
 	if err != nil {
 		return err
 	}
-	req := brosdk.GetUserSigRequest{
-		CustomerId: fmt.Sprintf("%d", uid),
-		Duration:   86400,
-	}
 
-	resp, err := sdk.GetUserSig(context.Background(), &req)
+	resp, err := sdk.GetUserSig(context.Background(), req)
 	if err != nil {
 		return err
 	}
